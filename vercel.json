@@ -2,22 +2,22 @@
   "version": 2,
   "builds": [
     {
-      "src": "server.js", // Archivo principal del servidor
+      "src": "server.js",
       "use": "@vercel/node"
     },
     {
-      "src": "public/**/*", // Archivos estáticos (frontend)
+      "src": "public/**/*",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/send-email", // Ruta para el backend
+      "src": "/send-email",
       "methods": ["POST"],
       "dest": "server.js"
     },
     {
-      "src": "/(.*)", // Ruta para el frontend
+      "src": "/(.*)",
       "dest": "/public/$1"
     }
   ]
