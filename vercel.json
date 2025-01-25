@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js", // Archivo principal del servidor
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/send-email", // Ruta para el backend
+      "methods": ["POST"],
+      "dest": "server.js"
+    },
+    {
+      "src": "/(.*)", // Ruta para el frontend
+      "dest": "/public/$1"
+    }
+  ]
+}
