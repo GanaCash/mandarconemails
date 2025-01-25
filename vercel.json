@@ -4,6 +4,10 @@
     {
       "src": "server.js", // Archivo principal del servidor
       "use": "@vercel/node"
+    },
+    {
+      "src": "public/**/*", // Archivos estáticos (frontend)
+      "use": "@vercel/static"
     }
   ],
   "routes": [
