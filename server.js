@@ -10,8 +10,8 @@ app.use(express.json());
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'caxespana@gmail.com', // Cambia esto por tu correo
-    pass: 'odag hgem gjij cjfr' // Cambia esto por tu contraseña
+    user: '', // Cambia esto por tu correo
+    pass: '' // Cambia esto por tu contraseña
   }
 });
 
@@ -185,7 +185,7 @@ app.post('/send-email', (req, res) => {
 
   // Configuración del correo
   const mailOptions = {
-    from: 'caxespana@gmail.com',
+    from: '',
     to: emailUser,
     subject: 'Confirmación de Pago',
     html: emailHtml, // Usamos HTML en lugar de texto plano
