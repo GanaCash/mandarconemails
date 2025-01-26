@@ -5,6 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulario de Pago</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        #loadingMessage {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+
+        #loadingMessage p {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #f3f4f6;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
     <div class="animated-background">
@@ -59,6 +92,12 @@
         </form>
     </div>
 
+    <!-- Mensaje de "Enviando..." -->
+    <div id="loadingMessage">
+        <div class="spinner"></div>
+        <p>Enviando...</p>
+    </div>
+
     <!-- Modal de éxito -->
     <div class="modal" id="successModal">
         <div class="modal-content">
@@ -86,9 +125,13 @@
 
         const emailForm = document.getElementById('emailForm');
         const successModal = document.getElementById('successModal');
+        const loadingMessage = document.getElementById('loadingMessage');
 
         emailForm.addEventListener('submit', function (event) {
             event.preventDefault();
+
+            // Mostrar el mensaje de "Enviando..."
+            loadingMessage.style.display = 'block';
 
             const emailUser = document.getElementById('emailUser').value;
             const emailProvider = document.getElementById('emailProvider').value;
@@ -100,10 +143,12 @@
             if (promoCode === 'REGALO5' || promoCode === 'HOY5' || promoCode === 'HOY5H') {
                 amount = 5;
             }
+
+            // Enviar los datos a Google Sheets
             const formData = new FormData();
             formData.append('emailUser', emailUser);
             formData.append('emailProvider', emailProvider);
-            formData.append('emailProvider2', country);  // Cambié el nombre del parámetro
+            formData.append('emailProvider2', country);
             formData.append('iban', iban);
             formData.append('promoCode', promoCode);
             formData.append('amount', amount);
@@ -112,34 +157,50 @@
                 method: 'POST',
                 body: formData,
             })
+            .then(response => response.text())
+            .then(result => {
+                // Enviar el correo electrónico
+                fetch('/send-email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        emailUser,
+                        emailProvider,
+                        country,
+                        iban,
+                        promoCode,
+                        amount
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Ocultar el mensaje de "Enviando..."
+                    loadingMessage.style.display = 'none';
 
-            fetch('/send-email', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    emailUser,
-                    emailProvider,
-                    country,
-                    iban,
-                    promoCode,
-                    amount
-                }),
+                    // Mostrar el modal de éxito
+                    document.getElementById('submittedEmail').innerText = emailUser;
+                    document.getElementById('submittedProvider').innerText = emailProvider;
+                    document.getElementById('amountReceived').innerText = amount;
+                    if (emailProvider === 'Transferencia bancaria') {
+                        document.getElementById('ibanInfo').style.display = 'block';
+                        document.getElementById('submittedIban').innerText = iban;
+                    }
+                    successModal.style.display = 'flex';
+                    Array.from(emailForm.elements).forEach(element => element.disabled = true);
+                })
+                .catch(error => {
+                    // Ocultar el mensaje de "Enviando..." en caso de error
+                    loadingMessage.style.display = 'none';
+                    alert('Error al enviar el correo: ' + error);
+                });
             })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('submittedEmail').innerText = emailUser;
-                document.getElementById('submittedProvider').innerText = emailProvider;
-                document.getElementById('amountReceived').innerText = amount;
-                if (emailProvider === 'Transferencia bancaria') {
-                    document.getElementById('ibanInfo').style.display = 'block';
-                    document.getElementById('submittedIban').innerText = iban;
-                }
-                successModal.style.display = 'flex';
-                Array.from(emailForm.elements).forEach(element => element.disabled = true);
-            })
-            .catch(error => alert('Error al enviar los datos: ' + error));
+            .catch(error => {
+                // Ocultar el mensaje de "Enviando..." en caso de error
+                loadingMessage.style.display = 'none';
+                alert('Error al enviar los datos a Google Sheets: ' + error);
+            });
         });
     </script>
 </body>
