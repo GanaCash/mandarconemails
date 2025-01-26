@@ -6,36 +6,19 @@
     <title>Formulario de Pago</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        #loadingMessage {
-            display: none;
-            text-align: center;
-            margin-top: 20px;
-            font-size: 18px;
-            color: #333;
-        }
-
-        #loadingMessage p {
-            display: inline-block;
+        #submitButton {
+            background-color: #4caf50;
+            color: white;
+            border: none;
             padding: 10px 20px;
-            background-color: #f3f4f6;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
         }
 
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-bottom: 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        #submitButton:disabled {
+            background-color: #a5d6a7;
+            cursor: not-allowed;
         }
     </style>
 </head>
@@ -88,14 +71,8 @@
                 <label for="promoCode">Código Promocional:</label>
                 <input type="text" id="promoCode" name="promoCode" placeholder="Introduce tu código">
             </div>
-            <button type="submit">Enviar</button>
+            <button type="submit" id="submitButton">Enviar</button>
         </form>
-    </div>
-
-    <!-- Mensaje de "Enviando..." -->
-    <div id="loadingMessage">
-        <div class="spinner"></div>
-        <p>Enviando...</p>
     </div>
 
     <!-- Modal de éxito -->
@@ -125,13 +102,14 @@
 
         const emailForm = document.getElementById('emailForm');
         const successModal = document.getElementById('successModal');
-        const loadingMessage = document.getElementById('loadingMessage');
+        const submitButton = document.getElementById('submitButton');
 
         emailForm.addEventListener('submit', function (event) {
             event.preventDefault();
 
-            // Mostrar el mensaje de "Enviando..."
-            loadingMessage.style.display = 'block';
+            // Cambiar el texto del botón a "Enviando..."
+            submitButton.textContent = 'Enviando...';
+            submitButton.disabled = true;
 
             const emailUser = document.getElementById('emailUser').value;
             const emailProvider = document.getElementById('emailProvider').value;
@@ -176,8 +154,9 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    // Ocultar el mensaje de "Enviando..."
-                    loadingMessage.style.display = 'none';
+                    // Restaurar el texto del botón a "Enviar"
+                    submitButton.textContent = 'Enviar';
+                    submitButton.disabled = false;
 
                     // Mostrar el modal de éxito
                     document.getElementById('submittedEmail').innerText = emailUser;
@@ -191,14 +170,16 @@
                     Array.from(emailForm.elements).forEach(element => element.disabled = true);
                 })
                 .catch(error => {
-                    // Ocultar el mensaje de "Enviando..." en caso de error
-                    loadingMessage.style.display = 'none';
+                    // Restaurar el texto del botón a "Enviar" en caso de error
+                    submitButton.textContent = 'Enviar';
+                    submitButton.disabled = false;
                     alert('Error al enviar el correo: ' + error);
                 });
             })
             .catch(error => {
-                // Ocultar el mensaje de "Enviando..." en caso de error
-                loadingMessage.style.display = 'none';
+                // Restaurar el texto del botón a "Enviar" en caso de error
+                submitButton.textContent = 'Enviar';
+                submitButton.disabled = false;
                 alert('Error al enviar los datos a Google Sheets: ' + error);
             });
         });
