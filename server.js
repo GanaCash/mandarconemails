@@ -28,7 +28,100 @@ app.post('/send-email', (req, res) => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Email con Sentido</title>
       <style>
-        /* Estilos aquí */
+         /* General Styles */
+ body {
+   margin: 0;
+   padding: 0;
+   font-family: 'Arial', sans-serif;
+   background-color: #f9fafb;
+   color: #333;
+ }
+ .email-container {
+   max-width: 600px;
+   margin: 40px auto;
+   background: #ffffff;
+   border-radius: 12px;
+   overflow: hidden;
+   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+ }
+ /* Header Styles */
+ .email-header {
+   background: linear-gradient(blue, blue);
+   color: white;
+   text-align: center;
+   padding: 40px 20px;
+ }
+ .email-header img {
+   max-width: 150px;
+   margin-bottom: 15px;
+ }
+ .email-header h2 {
+   font-size: 28px;
+   margin: 10px 0;
+   line-height: 1.4;
+ }
+ /* Content Styles */
+ .email-content {
+   padding: 20px;
+   line-height: 1.8;
+   font-size: 16px;
+ }
+ .email-content h1 {
+   font-size: 22px;
+   color: #4caf50;
+   margin-bottom: 15px;
+ }
+ .email-content p {
+   margin-bottom: 20px;
+ }
+ .email-content ul {
+   padding: 0;
+   list-style: none;
+ }
+ .email-content ul li {
+   margin-bottom: 12px;
+   display: flex;
+   align-items: center;
+ }
+ .email-content ul li img {
+   margin-right: 10px;
+   width: 24px;
+   height: 24px;
+ }
+ .email-content ul li span {
+   font-weight: bold;
+   color: #4caf50;
+ }
+ /* Footer Styles */
+ .email-footer {
+   text-align: center;
+   padding: 20px;
+   background-color: #f3f4f6;
+   font-size: 14px;
+   color: #555;
+ }
+ .email-footer p {
+   margin-bottom: 15px;
+ }
+ .social-icons {
+   display: flex;
+   justify-content: center;
+   gap: 12px;
+   margin-bottom: 10px;
+ }
+ .social-icons a {
+   display: inline-block;
+   width: 32px;
+   height: 32px;
+ }
+ .social-icons img {
+   width: 100%;
+   border-radius: 50%;
+   transition: transform 0.2s ease;
+ }
+ .social-icons img:hover {
+   transform: scale(1.1);
+ }
       </style>
     </head>
     <body>
