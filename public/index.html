@@ -1,10 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario de Pago</title>
     <link rel="stylesheet" href="styles.css">
+    <title>Formulario de Pago</title>
     <style>
         #submitButton {
             background-color: #4caf50;
@@ -71,7 +72,39 @@
                 <label for="promoCode">Código Promocional:</label>
                 <input type="text" id="promoCode" name="promoCode" placeholder="Introduce tu código">
             </div>
+            <style>
+                .form-groupp {
+                 display: flex;
+                 align-items: center;
+                 gap: 5px; /* Espacio entre el checkbox y el texto */
+              }
+              input[type="checkbox"] + label {
+    font-weight: bold;
+    color: #0fbf12;
+    cursor: pointer;
+}
+input[type="checkbox"]:checked + label {
+    color: #ff9933;
+}
+
+            </style>
+            <div class="form-groupp">
+                <input type="checkbox" id="haaceptado" name="haaceptado" required>
+                <label for="haaceptado">
+                    Acepto los 
+                    <a href="https://ganacash.vercel.app/terminos-y-condiciones.html" target="_blank">Términos y condiciones</a> y 
+                    <a href="https://ganacash.vercel.app/politica-de-privacidad.html" target="_blank">Política de privacidad</a> 
+                </label>
+            </div>
+          <div class="form-groupp">
+            <input type="checkbox" id="haaceptado" name="haaceptado">
+            <label for="haaceptado">
+                Acepto recibir notificaciones por correo electrónico (opcional)
+           </label>
+          </div>
+            <div>
             <button type="submit" id="submitButton">Enviar</button>
+            </div>
         </form>
     </div>
 
