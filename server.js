@@ -20,15 +20,15 @@ app.post('/send-email', (req, res) => {
   const { emailUser, emailProvider, country, iban, promoCode, amount } = req.body;
 
   // Plantilla HTML del correo
-  const emailHtml = `
-<!DOCTYPE html>
+  const emailHtml = `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Email con Sentido</title>
+  <title>Email con PDF Adjunto</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-     /* General Styles */
+    /* General Styles */
 body {
 margin: 0;
 padding: 0;
@@ -46,7 +46,7 @@ box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 /* Header Styles */
 .email-header {
-background: linear-gradient(blue, blue);
+    background: linear-gradient(to right, #007BFF, #0056b3);
 color: white;
 text-align: center;
 padding: 40px 20px;
@@ -127,25 +127,43 @@ a {
   text-decoration: none;
   color: #333
 }
+    .pdf-container {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .download-button {
+      display: inline-block;
+      padding: 10px 20px;
+      font-size: 1em;
+      color: #fff;
+      background-color: #007BFF;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .download-button:hover {
+      background-color: #0056b3;
+    }
   </style>
 </head>
 <body>
   <div class="email-container">
     <!-- Header Section -->
     <div class="email-header">
-      <img src="https://ganacash.vercel.app/Fondo.png" alt="GanaCash Logo" >
+      <img src="https://ganacash.vercel.app/Fondo.png" alt="GanaCash Logo">
       <h2>¡Tu Dinero Está en Camino!</h2>
     </div>
 
     <!-- Content Section -->
     <div class="email-content">
-      <h1>¡Hola <span>${emailUser}</span>!</h1>
+      <h1>¡Hola <span id="emailUser">emailuser</span>!</h1>
       <p>¡Excelentes noticias! Tu solicitud ha sido aprobada y estamos procesando tu dinero para que lo recibas en las próximas 24 horas.</p>
       <h2>Detalles de tu transacción:</h2>
       <ul>
         <li>
           <img src="https://ganacash.vercel.app/imagenes/dinero.png" alt="Icono Monto">
-          Cantidad aprobada: <span> 1 euro</span>
+          Cantidad aprobada: <span>1 euro</span>
         </li>
         <li>
           <img src="https://ganacash.vercel.app/imagenes/Tiempo.png" alt="Icono Tiempo">
@@ -153,28 +171,93 @@ a {
         </li>
         <li>
           <img src="https://ganacash.vercel.app/imagenes/elegir.png" alt="Icono Elegir">
-          Has seleccionado: <span>${emailProvider}</span>
+          Has seleccionado: <span id="emailProvider">${emailProvider}</span>
         </li>
         ${iban ? `<li>IBAN: <span>${iban}</span></li>` : ''}
         <li>
           <img src="https://ganacash.vercel.app/imagenes/email.png" alt="Icono Email">
-          Email: <span>${emailUser}</span>
+          Email: <span id="emailUserCopy">${emailUser}</span>
         </li>
       </ul>
+       <!-- PDF Section -->
+  <div class="pdf-container">
+    <a id="downloadLink" class="download-button">Más detalles</a>
+  </div>
     </div>
+    
 
     <!-- Footer Section -->
     <div class="email-footer">
-      
       <p>© 2025 GanaCash. Todos los derechos reservados.</p>
-      <p>Este email fue enviado de manera automática a <span>${emailUser}</span></p>
+      <p>Este email fue enviado de manera automática a <span id="emailUserFooter">${emailUser}</span></p>
       <a href="mailto:ganacash.app.oficial@gmail.com">Contáctanos | </a><a href="mailto:ganacash.app.oficial@gmail.com">¿No eres tú?</a>
-      <br>
-      
     </div>
   </div>
+
+ 
+
+  <script>
+   
+    // Generar un código de transacción aleatorio
+    const transaction_id = 'C' + Math.random().toString(36).substr(2, 9).toUpperCase();
+
+    // Actualizar el contenido del HTML con los datos
+    document.getElementById('emailUser').textContent = emailUser;
+    document.getElementById('emailProvider').textContent = emailProvider;
+    document.getElementById('emailUserCopy').textContent = emailUser;
+    document.getElementById('emailUserFooter').textContent = emailUser;
+
+    if (iban) {
+      document.getElementById('iban').textContent = iban;
+      document.getElementById('iban-li').style.display = 'list-item';
+    }
+
+    // Crear el PDF
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+
+    // Añadir el logo
+    const logoImage = new Image();
+    logoImage.src = 'https://ganacash.vercel.app/Fondo.png';
+    doc.addImage(logoImage, 'PNG', 10, 8, 30, 30);
+
+    // Añadir el contenido con colores y estilo
+    doc.setTextColor(50, 50, 50);
+    doc.text("¡Tu Dinero Está en Camino!", 10, 50);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`¡Hola ${emailUser}!`, 10, 60);
+    doc.text("¡Excelentes noticias! Tu solicitud ha sido aprobada y estamos procesando tu dinero", 10, 70);
+    doc.text("para que lo recibas en las próximas 24 horas", 10, 80);
+    doc.setTextColor(50, 50, 50);
+    doc.text("Detalles de tu transacción:", 10, 90);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Cantidad aprobada: 1 euro`, 10, 100);
+    doc.text(`Tiempo estimado de transferencia: 24 horas`, 10, 110);
+    doc.text(`Has seleccionado: ${emailProvider}`, 10, 120);
+    if (iban) {
+      doc.text(`IBAN: ${iban}`, 10, 130);
+    }
+    doc.text(`Email: ${emailUser}`, 10, 140);
+    doc.setTextColor(0, 0, 255);
+    doc.text(`ID de Transacción: ${transaction_id}`, 10, 150);
+
+    // Añadir una línea decorativa
+    doc.setDrawColor(200, 200, 200);
+    doc.line(10, 145, 200, 145);
+
+    // Crear un enlace de descarga
+    const pdfDataUri = doc.output('datauristring');
+    const downloadLink = document.getElementById('downloadLink');
+    downloadLink.href = pdfDataUri;
+    downloadLink.download = 'GanaCash.pdf';
+  </script>
 </body>
 </html>
+
   `;
 
   // Configuración del correo
