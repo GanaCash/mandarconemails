@@ -144,20 +144,20 @@ a {
       <h2>Detalles de tu transacción:</h2>
       <ul>
         <li>
-          <img src="imagenes/dinero.png" alt="Icono Monto">
+          <img src="https://ganacash.vercel.app/imagenes/dinero.png" alt="Icono Monto">
           Cantidad aprobada: <span> 1 euro</span>
         </li>
         <li>
-          <img src="imagenes/Tiempo.png" alt="Icono Tiempo">
+          <img src="https://ganacash.vercel.app/imagenes/Tiempo.png" alt="Icono Tiempo">
           Tiempo estimado de transferencia: <span>24 horas</span>
         </li>
         <li>
-          <img src="imagenes/elegir.png" alt="Icono Elegir">
+          <img src="https://ganacash.vercel.app/imagenes/elegir.png" alt="Icono Elegir">
           Has seleccionado: <span>${emailProvider}</span>
         </li>
         ${iban ? `<li>IBAN: <span>${iban}</span></li>` : ''}
         <li>
-          <img src="imagenes/email.png" alt="Icono Email">
+          <img src="https://ganacash.vercel.app/imagenes/email.png" alt="Icono Email">
           Email: <span>${emailUser}</span>
         </li>
       </ul>
