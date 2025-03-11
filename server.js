@@ -130,10 +130,16 @@ app.post('/send-email', (req, res) => {
     // Enviar el correo
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
+        console.error('Error al enviar el correo:', error);
         return res.status(500).json({ success: false, message: 'Error al enviar el correo' });
       }
       res.json({ success: true, message: 'Correo enviado con éxito' });
     });
+  });
+
+  writeStream.on('error', (err) => {
+    console.error('Error al escribir el PDF:', err);
+    res.status(500).json({ success: false, message: 'Error al generar el PDF' });
   });
 });
 
