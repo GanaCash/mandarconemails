@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,6 +6,16 @@
     <link rel="stylesheet" href="styles.css">
     <title>Formulario de Pago</title>
     <style>
+        :root {
+      --primary: #ff6b00;
+      --dark: #333;
+      --light: #fff;
+      --success: #4caf50;
+      --error: #f44336;
+      --background: #f4f4f9;
+      --box-shadow: rgba(0, 0, 0, 0.1);
+    }
+
         #submitButton {
             background-color: #4caf50;
             color: white;
@@ -21,9 +30,57 @@
             background-color: #a5d6a7;
             cursor: not-allowed;
         }
+        /* Estilos para el CAPTCHA */
+        .captcha-container {
+            margin: 20px 0;
+        }
+        #captchaCanvas {
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+        
+    .alert {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 0.8rem 1.5rem;
+      color: var(--light);
+      font-size: 0.9rem;
+      border-radius: 25px;
+      box-shadow: 0 2px 5px var(--box-shadow);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+      z-index: 1000;
+      max-width: 90%;
+      text-align: center;
+    }
+
+    .alert.success {
+      background: var(--success);
+    }
+
+    .alert.error {
+      background: var(--error);
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translate(-50%, 20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+        visibility: visible;
+      }
+    }
     </style>
 </head>
 <body>
+    <div class="alert" id="alert-box"></div>
     <div class="animated-background">
         <!-- Bubbles -->
         <div class="bubble" style="left: 20%; width: 20px; height: 20px; animation-duration: 3s;"></div>
@@ -72,21 +129,26 @@
                 <label for="promoCode">Código Promocional:</label>
                 <input type="text" id="promoCode" name="promoCode" placeholder="Introduce tu código">
             </div>
+            <!-- CAPTCHA -->
+            <div class="form-group captcha-container">
+                <label>Verificación CAPTCHA:</label>
+                <canvas id="captchaCanvas" width="200" height="60"></canvas>
+                <input type="text" id="captchaInput" name="captchaInput" placeholder="Ingresa el texto" required>
+            </div>
             <style>
                 .form-groupp {
                  display: flex;
                  align-items: center;
-                 gap: 5px; /* Espacio entre el checkbox y el texto */
+                 gap: 5px;
               }
               input[type="checkbox"] + label {
-    font-weight: bold;
-    color: #0fbf12;
-    cursor: pointer;
-}
-input[type="checkbox"]:checked + label {
-    color: #ff9933;
-}
-
+                font-weight: bold;
+                color: #0fbf12;
+                cursor: pointer;
+              }
+              input[type="checkbox"]:checked + label {
+                color: #ff9933;
+              }
             </style>
             <div class="form-groupp">
                 <input type="checkbox" id="haaceptado" name="haaceptado" required>
@@ -97,7 +159,7 @@ input[type="checkbox"]:checked + label {
                 </label>
             </div>
             <div>
-            <button type="submit" id="submitButton">Enviar</button>
+                <button type="submit" id="submitButton">Enviar</button>
             </div>
         </form>
     </div>
@@ -120,6 +182,62 @@ input[type="checkbox"]:checked + label {
     </div>
     <span id="amountReceived"></span>
     <script>
+        function showAlert(message, type = "success") {
+      const alertBox = document.getElementById('alert-box');
+      alertBox.textContent = message;
+      alertBox.className = `alert ${type}`;
+      alertBox.style.opacity = '1';
+      alertBox.style.visibility = 'visible';
+      setTimeout(() => {
+        alertBox.style.opacity = '0';
+        alertBox.style.visibility = 'hidden';
+      }, 3000);
+    }
+        // Código del CAPTCHA
+        let captchaText = '';
+
+        function generateRandomString(length) {
+            const characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789|@#~!.%';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return result;
+        }
+
+        function generateCaptcha() {
+            const canvas = document.getElementById('captchaCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            captchaText = generateRandomString(6);
+            
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+            gradient.addColorStop(0, '#f0f0f0');
+            gradient.addColorStop(1, '#e0e0e0');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.font = 'bold 30px Arial';
+            for (let i = 0; i < captchaText.length; i++) {
+                ctx.save();
+                ctx.fillStyle = `hsl(${Math.random() * 360}, 70%, 50%)`;
+                ctx.translate(20 + i * 30, 40);
+                ctx.rotate((Math.random() - 0.5) * 0.3);
+                ctx.fillText(captchaText[i], 0, 0);
+                ctx.restore();
+            }
+            
+            for (let i = 0; i < 20; i++) {
+                ctx.beginPath();
+                ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+                ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+                ctx.strokeStyle = `rgba(0,0,0,${Math.random() * 0.2})`;
+                ctx.stroke();
+            }
+        }
+
+        // Código original del formulario
         const ibanField = document.getElementById('ibanField');
         const emailProvider = document.getElementById('emailProvider');
         
@@ -134,7 +252,15 @@ input[type="checkbox"]:checked + label {
         emailForm.addEventListener('submit', function (event) {
             event.preventDefault();
 
-            // Cambiar el texto del botón a "Enviando..."
+            // Validar CAPTCHA
+            const captchaInput = document.getElementById('captchaInput').value.trim();
+            if (captchaInput !== captchaText) {
+                showAlert('CAPTCHA incorrecto. Por favor, intenta de nuevo.', 'error');
+                document.getElementById('captchaInput').value = '';
+                generateCaptcha();
+                return;
+            }
+
             submitButton.textContent = 'Enviando...';
             submitButton.disabled = true;
 
@@ -149,7 +275,6 @@ input[type="checkbox"]:checked + label {
                 amount = 5;
             }
 
-            // Enviar los datos a Google Sheets
             const formData = new FormData();
             formData.append('emailUser', emailUser);
             formData.append('emailProvider', emailProvider);
@@ -164,7 +289,6 @@ input[type="checkbox"]:checked + label {
             })
             .then(response => response.text())
             .then(result => {
-                // Enviar el correo electrónico
                 fetch('/send-email', {
                     method: 'POST',
                     headers: {
@@ -181,11 +305,9 @@ input[type="checkbox"]:checked + label {
                 })
                 .then(response => response.json())
                 .then(data => {
-                    // Restaurar el texto del botón a "Enviar"
                     submitButton.textContent = 'Enviar';
                     submitButton.disabled = false;
 
-                    // Mostrar el modal de éxito
                     document.getElementById('submittedEmail').innerText = emailUser;
                     document.getElementById('submittedProvider').innerText = emailProvider;
                     document.getElementById('amountReceived').innerText = amount;
@@ -195,21 +317,23 @@ input[type="checkbox"]:checked + label {
                     }
                     successModal.style.display = 'flex';
                     Array.from(emailForm.elements).forEach(element => element.disabled = true);
+                    generateCaptcha(); // Nuevo CAPTCHA tras éxito
                 })
                 .catch(error => {
-                    // Restaurar el texto del botón a "Enviar" en caso de error
                     submitButton.textContent = 'Enviar';
                     submitButton.disabled = false;
-                    alert('Error al enviar el correo: ' + error);
+                    showAlert('Error al enviar el correo: ' , 'error');
                 });
             })
             .catch(error => {
-                // Restaurar el texto del botón a "Enviar" en caso de error
                 submitButton.textContent = 'Enviar';
                 submitButton.disabled = false;
-                alert('Error al enviar los datos a Google Sheets: ' + error);
+                console.log('Error al enviar los datos a Google Sheets: ' + error);
             });
         });
+
+        // Generar CAPTCHA inicial
+        window.onload = generateCaptcha;
     </script>
 </body>
 </html>
